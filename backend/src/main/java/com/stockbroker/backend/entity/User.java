@@ -2,6 +2,7 @@ package com.stockbroker.backend.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -35,6 +36,10 @@ public class User {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
+
+    // One User can have many Orders
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL)
+    private List<Order> orders;
 
     public User() {
     }
@@ -114,5 +119,13 @@ public class User {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public List<Order> getOrders() {
+        return orders;
+    }
+
+    public void setOrders(List<Order> orders) {
+        this.orders = orders;
     }
 }
