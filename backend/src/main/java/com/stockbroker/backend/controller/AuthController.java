@@ -2,6 +2,7 @@ package com.stockbroker.backend.controller;
 
 import com.stockbroker.backend.dto.LoginRequest;
 import com.stockbroker.backend.dto.LoginResponse;
+import com.stockbroker.backend.dto.ProfileResponse;
 import com.stockbroker.backend.dto.RegisterRequest;
 import com.stockbroker.backend.dto.UserResponse;
 import com.stockbroker.backend.service.AuthenticationService;
@@ -25,11 +26,7 @@ public class AuthController {
         this.authenticationService = authenticationService;
     }
 
-    @PostMapping(
-            value = "/register",
-            consumes = "application/json",
-            produces = "application/json"
-    )
+    @PostMapping("/register")
     public ResponseEntity<UserResponse> registerUser(
             @Valid @RequestBody RegisterRequest request) {
 
@@ -38,16 +35,27 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @PostMapping(
-            value = "/login",
-            consumes = "application/json",
-            produces = "application/json"
-    )
+    @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(
             @Valid @RequestBody LoginRequest request) {
 
-        LoginResponse response = authenticationService.login(request);
+        return ResponseEntity.ok(
+                authenticationService.login(request)
+        );
+    }
 
-        return ResponseEntity.ok(response);
+    @GetMapping("/profile")
+    public ResponseEntity<ProfileResponse> profile() {
+
+        return ResponseEntity.ok(
+                authenticationService.getProfile()
+        );
+    }
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout() {
+
+        return ResponseEntity.ok(
+                authenticationService.logout()
+        );
     }
 }
