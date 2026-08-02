@@ -44,6 +44,9 @@ public class User {
     public User() {
     }
 
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL)
+    private List<Portfolio> portfolios;
+
     @PrePersist
     public void prePersist() {
         this.createdAt = LocalDateTime.now();
@@ -127,5 +130,12 @@ public class User {
 
     public void setOrders(List<Order> orders) {
         this.orders = orders;
+    }
+    public List<Portfolio> getPortfolios() {
+        return portfolios;
+    }
+
+    public void setPortfolios(List<Portfolio> portfolios) {
+        this.portfolios = portfolios;
     }
 }
