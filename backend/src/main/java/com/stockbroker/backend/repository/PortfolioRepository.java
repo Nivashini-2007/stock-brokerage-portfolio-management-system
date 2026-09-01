@@ -12,7 +12,6 @@ public interface PortfolioRepository extends JpaRepository<Portfolio, Long> {
 
     List<Portfolio> findByClientId(Long clientId);
 
-    Optional<Portfolio> findByClientIdAndStockSymbol(Long clientId,
-                                                     String stockSymbol);
+    Optional<Portfolio> findByClientIdAndStockSymbol(Long clientId, String stockSymbol);
 
 }
