@@ -8,8 +8,27 @@ public class ProfileResponse {
     private String email;
     private String phone;
     private String role;
+    private Boolean enabled;
 
     public ProfileResponse() {
+    }
+
+    public ProfileResponse(
+            Long id,
+            String firstName,
+            String lastName,
+            String email,
+            String phone,
+            String role,
+            Boolean enabled) {
+
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.phone = phone;
+        this.role = role;
+        this.enabled = enabled;
     }
 
     public Long getId() {
@@ -58,5 +77,13 @@ public class ProfileResponse {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public Boolean getEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(Boolean enabled) {
+        this.enabled = enabled;
     }
 }

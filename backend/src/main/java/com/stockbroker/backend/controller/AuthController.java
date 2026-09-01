@@ -5,11 +5,13 @@ import com.stockbroker.backend.dto.LoginResponse;
 import com.stockbroker.backend.dto.ProfileResponse;
 import com.stockbroker.backend.dto.RegisterRequest;
 import com.stockbroker.backend.dto.UserResponse;
+import com.stockbroker.backend.security.CustomUserPrincipal;
 import com.stockbroker.backend.service.AuthenticationService;
 import com.stockbroker.backend.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,43 +21,77 @@ public class AuthController {
     private final UserService userService;
     private final AuthenticationService authenticationService;
 
-    public AuthController(UserService userService,
-                          AuthenticationService authenticationService) {
+    public AuthController(
+            UserService userService,
+            AuthenticationService authenticationService) {
 
         this.userService = userService;
         this.authenticationService = authenticationService;
     }
 
-    @PostMapping("/register")
+    /**
+     * Register a new user.
+     *
+     * Public endpoint.
+     */
+    @PostMapping(
+            value = "/register",
+            consumes = "application/json",
+            produces = "application/json"
+    )
     public ResponseEntity<UserResponse> registerUser(
             @Valid @RequestBody RegisterRequest request) {
 
-        UserResponse response = userService.registerUser(request);
+        UserResponse response =
+                userService.registerUser(request);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(response);
     }
 
-    @PostMapping("/login")
+    /**
+     * Authenticate user and generate JWT token.
+     *
+     * Public endpoint.
+     */
+    @PostMapping(
+            value = "/login",
+            consumes = "application/json",
+            produces = "application/json"
+    )
     public ResponseEntity<LoginResponse> login(
             @Valid @RequestBody LoginRequest request) {
 
-        return ResponseEntity.ok(
-                authenticationService.login(request)
-        );
+        LoginResponse response =
+                authenticationService.login(request);
+
+        return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/profile")
-    public ResponseEntity<ProfileResponse> profile() {
+    /**
+     * Get the currently authenticated user's profile.
+     *
+     * The user is identified from the JWT token.
+     * No client ID is accepted from the request.
+     */
+    @GetMapping(
+            value = "/profile",
+            produces = "application/json"
+    )
+    public ResponseEntity<ProfileResponse> getProfile(
+            @AuthenticationPrincipal CustomUserPrincipal principal) {
 
-        return ResponseEntity.ok(
-                authenticationService.getProfile()
+        ProfileResponse response = new ProfileResponse(
+                principal.getId(),
+                principal.getFirstName(),
+                principal.getLastName(),
+                principal.getUser().getEmail(),
+                principal.getUser().getPhone(),
+                principal.getRole(),
+                principal.getUser().getEnabled()
         );
-    }
-    @PostMapping("/logout")
-    public ResponseEntity<String> logout() {
 
-        return ResponseEntity.ok(
-                authenticationService.logout()
-        );
+        return ResponseEntity.ok(response);
     }
 }
