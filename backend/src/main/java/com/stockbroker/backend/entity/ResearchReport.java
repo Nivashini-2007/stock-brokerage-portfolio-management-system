@@ -1,5 +1,6 @@
 package com.stockbroker.backend.entity;
 
+import com.stockbroker.backend.enums.ReportStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -20,8 +21,9 @@ public class ResearchReport {
     @Column(nullable = false)
     private String symbol;
 
-    @Column(nullable = false)
-    private String analyst;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "analyst_id", nullable = false)
+    private User analyst;
 
     @Column(nullable = false)
     private String recommendation;
@@ -29,9 +31,12 @@ public class ResearchReport {
     @Column(nullable = false)
     private Double targetPrice;
 
-    @Column(nullable = false)
     private LocalDate publishedDate;
 
     @Column(length = 2000)
     private String summary;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ReportStatus status = ReportStatus.DRAFT;
 }

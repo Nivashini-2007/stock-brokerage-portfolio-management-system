@@ -2,6 +2,7 @@ package com.stockbroker.backend.controller;
 
 import com.stockbroker.backend.dto.LedgerResponse;
 import com.stockbroker.backend.dto.TransferRequest;
+import com.stockbroker.backend.security.SecurityUtils;
 import com.stockbroker.backend.service.LedgerService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -24,6 +25,8 @@ public class LedgerController {
     public ResponseEntity<List<LedgerResponse>> getLedger(
             @PathVariable Long clientId) {
 
+        SecurityUtils.assertCanAccessClient(clientId);
+
         return ResponseEntity.ok(
                 ledgerService.getLedger(clientId)
         );
@@ -32,6 +35,8 @@ public class LedgerController {
     @PostMapping("/transfer")
     public ResponseEntity<LedgerResponse> transferFunds(
             @Valid @RequestBody TransferRequest request) {
+
+        SecurityUtils.assertCanAccessClient(request.getClientId());
 
         return new ResponseEntity<>(
                 ledgerService.transferFunds(request),

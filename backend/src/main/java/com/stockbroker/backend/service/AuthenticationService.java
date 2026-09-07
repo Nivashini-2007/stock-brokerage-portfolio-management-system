@@ -10,6 +10,6 @@ public interface AuthenticationService {
 
     ProfileResponse getProfile();
 
-    String logout();
+    String logout(String token);
 
 }

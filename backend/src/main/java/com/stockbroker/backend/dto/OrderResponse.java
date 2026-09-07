@@ -1,5 +1,6 @@
 package com.stockbroker.backend.dto;
 
+import com.stockbroker.backend.enums.OrderSide;
 import com.stockbroker.backend.enums.OrderStatus;
 import com.stockbroker.backend.enums.OrderType;
 import lombok.Data;
@@ -17,15 +18,23 @@ public class OrderResponse {
 
     private OrderType orderType;
 
+    private OrderSide orderSide;
+
     private Integer quantity;
 
     private Double price;
+
+    private Double triggerPrice;
+
+    private Double targetPrice;
 
     private Double totalAmount;
 
     private OrderStatus status;
 
-    private LocalDateTime orderDate;
+    private LocalDateTime placedAt;
+
+    private LocalDateTime executedAt;
 
     private Long clientId;
 

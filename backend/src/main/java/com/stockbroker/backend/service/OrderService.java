@@ -16,4 +16,11 @@ public interface OrderService {
     List<OrderResponse> getAllOrders();
 
     void cancelOrder(Long id);
+
+    /**
+     * Scans PENDING LIMIT/STOP_LOSS/BRACKET/COVER orders and executes any
+     * whose trigger condition is met against the current Stock price
+     * (called by OrderMatchingScheduler).
+     */
+    void tryExecutePendingOrders();
 }

@@ -1,122 +1,78 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import AppShell from './components/layout/AppShell';
+import ProtectedRoute from './components/common/ProtectedRoute';
+import { AuthProvider } from './context/AuthContext';
+import { ToastProvider } from './context/ToastContext';
 
-function App() {
-  const [count, setCount] = useState(0)
+import Landing from './pages/Landing';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Dashboard from './pages/Dashboard';
+import TradingTerminal from './pages/TradingTerminal';
+import Portfolio from './pages/Portfolio';
+import Holdings from './pages/Holdings';
+import Orders from './pages/Orders';
+import Positions from './pages/Positions';
+import Funds from './pages/Funds';
+import Watchlist from './pages/Watchlist';
+import Research from './pages/Research';
+import RiskAlerts from './pages/RiskAlerts';
+import MarketAdmin from './pages/MarketAdmin';
+import Compliance from './pages/Compliance';
+import Notifications from './pages/Notifications';
+import Profile from './pages/Profile';
+import Admin from './pages/Admin';
+import NotFound from './pages/NotFound';
 
+export default function App() {
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <BrowserRouter>
+      <AuthProvider>
+        <ToastProvider>
+          <Routes>
+            <Route path="/" element={<Landing />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
 
-      <div className="ticks"></div>
+            <Route element={<ProtectedRoute />}>
+              <Route element={<AppShell />}>
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/portfolio" element={<Portfolio />} />
+                <Route path="/holdings" element={<Holdings />} />
+                <Route path="/funds" element={<Funds />} />
+                <Route path="/watchlist" element={<Watchlist />} />
+                <Route path="/research" element={<Research />} />
+                <Route path="/notifications" element={<Notifications />} />
+                <Route path="/profile" element={<Profile />} />
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+                <Route element={<ProtectedRoute roles={['CLIENT', 'DEALER', 'ADMIN']} />}>
+                  <Route path="/terminal" element={<TradingTerminal />} />
+                </Route>
+                <Route element={<ProtectedRoute roles={['CLIENT', 'DEALER', 'COMPLIANCE_OFFICER', 'RISK_MANAGER', 'ADMIN']} />}>
+                  <Route path="/orders" element={<Orders />} />
+                </Route>
+                <Route element={<ProtectedRoute roles={['CLIENT', 'DEALER', 'ADMIN']} />}>
+                  <Route path="/positions" element={<Positions />} />
+                </Route>
+                <Route element={<ProtectedRoute roles={['DEALER', 'RISK_MANAGER', 'ADMIN']} />}>
+                  <Route path="/risk-alerts" element={<RiskAlerts />} />
+                </Route>
+                <Route element={<ProtectedRoute roles={['DEALER', 'ADMIN']} />}>
+                  <Route path="/market" element={<MarketAdmin />} />
+                </Route>
+                <Route element={<ProtectedRoute roles={['COMPLIANCE_OFFICER', 'ADMIN']} />}>
+                  <Route path="/compliance" element={<Compliance />} />
+                </Route>
+                <Route element={<ProtectedRoute roles={['ADMIN']} />}>
+                  <Route path="/admin" element={<Admin />} />
+                </Route>
+              </Route>
+            </Route>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </ToastProvider>
+      </AuthProvider>
+    </BrowserRouter>
+  );
 }
-
-export default App

@@ -5,5 +5,10 @@ public enum TransactionType {
     DEPOSIT,
     WITHDRAWAL,
     BUY_ORDER,
-    SELL_ORDER
+    SELL_ORDER,
+    BROKERAGE,
+    GST,
+    STT,
+    EXCHANGE_CHARGES,
+    STAMP_DUTY
 }

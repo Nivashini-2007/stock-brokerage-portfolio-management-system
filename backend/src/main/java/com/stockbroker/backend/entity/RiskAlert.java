@@ -22,4 +22,12 @@ public class RiskAlert {
     private String description;
 
     private LocalDate createdDate;
+
+    /**
+     * Null for system-wide alerts (e.g. circuit breaker); set for
+     * client-specific alerts (margin call, auto square-off).
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "client_id")
+    private User client;
 }

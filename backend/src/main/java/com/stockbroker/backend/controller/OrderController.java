@@ -6,6 +6,7 @@ import com.stockbroker.backend.service.OrderService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,9 +22,10 @@ public class OrderController {
     }
 
     /**
-     * Place Order
+     * Place Order - Appendix A: Client/Dealer/Admin only.
      */
     @PostMapping
+    @PreAuthorize("hasAnyRole('CLIENT','DEALER','ADMIN')")
     public ResponseEntity<OrderResponse> placeOrder(
             @Valid @RequestBody OrderRequest request) {
 
@@ -33,7 +35,7 @@ public class OrderController {
     }
 
     /**
-     * Get Order By ID
+     * Get Order By ID - ownership enforced in OrderServiceImpl.
      */
     @GetMapping("/{id}")
     public ResponseEntity<OrderResponse> getOrderById(
@@ -43,7 +45,7 @@ public class OrderController {
     }
 
     /**
-     * Get Orders By Client
+     * Get Orders By Client - ownership enforced in OrderServiceImpl.
      */
     @GetMapping("/client/{clientId}")
     public ResponseEntity<List<OrderResponse>> getOrdersByClient(
@@ -54,9 +56,11 @@ public class OrderController {
     }
 
     /**
-     * Get Order Book
+     * Get Order Book - Appendix A: Dealer/Compliance Officer(L)/Risk
+     * Manager/Admin.
      */
     @GetMapping("/book")
+    @PreAuthorize("hasAnyRole('DEALER','COMPLIANCE_OFFICER','RISK_MANAGER','ADMIN')")
     public ResponseEntity<List<OrderResponse>> getOrderBook() {
 
         return ResponseEntity.ok(
@@ -64,7 +68,7 @@ public class OrderController {
     }
 
     /**
-     * Cancel Order
+     * Cancel Order - ownership enforced in OrderServiceImpl.
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<String> cancelOrder(

@@ -1,5 +1,6 @@
 package com.stockbroker.backend.dto;
 
+import com.stockbroker.backend.enums.ReportStatus;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -13,7 +14,9 @@ public class ResearchReportResponse {
 
     private String symbol;
 
-    private String analyst;
+    private Long analystId;
+
+    private String analystName;
 
     private String recommendation;
 
@@ -22,4 +25,6 @@ public class ResearchReportResponse {
     private LocalDate publishedDate;
 
     private String summary;
+
+    private ReportStatus status;
 }

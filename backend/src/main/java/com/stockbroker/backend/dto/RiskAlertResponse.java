@@ -16,4 +16,6 @@ public class RiskAlertResponse {
     private String description;
 
     private LocalDate createdDate;
+
+    private Long clientId;
 }

@@ -38,6 +38,14 @@ public class Stock {
     @Column(nullable = false)
     private LocalDateTime lastUpdated;
 
+    /**
+     * Simplified FR4 "circuit breaker detection" - when true, new order
+     * placement for this symbol is rejected. Toggled by an admin/dealer
+     * endpoint rather than a real exchange feed.
+     */
+    @Column(nullable = false)
+    private boolean circuitHalted = false;
+
     @PrePersist
     @PreUpdate
     public void updateTimestamp() {
