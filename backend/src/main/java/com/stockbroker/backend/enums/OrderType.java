@@ -1,6 +1,9 @@
 package com.stockbroker.backend.enums;
 
 public enum OrderType {
-    BUY,
-    SELL
+    MARKET,
+    LIMIT,
+    STOP_LOSS,
+    BRACKET,
+    COVER
 }

@@ -1,5 +1,6 @@
 package com.stockbroker.backend.security;
 
+import com.stockbroker.backend.repository.BlacklistedTokenRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,13 +20,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final CustomUserDetailsService userDetailsService;
+    private final BlacklistedTokenRepository blacklistedTokenRepository;
 
     public JwtAuthenticationFilter(
             JwtService jwtService,
-            CustomUserDetailsService userDetailsService) {
+            CustomUserDetailsService userDetailsService,
+            BlacklistedTokenRepository blacklistedTokenRepository) {
 
         this.jwtService = jwtService;
         this.userDetailsService = userDetailsService;
+        this.blacklistedTokenRepository = blacklistedTokenRepository;
     }
 
     @Override
@@ -62,6 +66,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
              */
             String username =
                     jwtService.extractUsername(jwt);
+
+            String jti = jwtService.extractJti(jwt);
+
+            /*
+             * Reject tokens invalidated by logout/password-change/security
+             * breach (SRS Appendix D "Token Blacklisting").
+             */
+            if (jti != null && blacklistedTokenRepository.existsByJti(jti)) {
+                filterChain.doFilter(request, response);
+                return;
+            }
 
             /*
              * Only authenticate if:

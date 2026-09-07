@@ -22,4 +22,6 @@ public class StockQuoteResponse {
     private Long volume;
 
     private LocalDateTime lastUpdated;
+
+    private boolean circuitHalted;
 }

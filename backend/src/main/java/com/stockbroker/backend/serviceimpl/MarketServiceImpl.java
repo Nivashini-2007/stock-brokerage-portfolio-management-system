@@ -1,18 +1,16 @@
 package com.stockbroker.backend.serviceimpl;
 
-import com.stockbroker.backend.dto.ResearchReportResponse;
 import com.stockbroker.backend.dto.StockHistoryResponse;
 import com.stockbroker.backend.dto.StockQuoteResponse;
-import com.stockbroker.backend.entity.ResearchReport;
+import com.stockbroker.backend.dto.StockRequest;
 import com.stockbroker.backend.entity.Stock;
-import com.stockbroker.backend.entity.StockHistory;
 import com.stockbroker.backend.exception.ResourceNotFoundException;
-import com.stockbroker.backend.repository.ResearchReportRepository;
 import com.stockbroker.backend.repository.StockHistoryRepository;
 import com.stockbroker.backend.repository.StockRepository;
 import com.stockbroker.backend.service.MarketService;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,15 +19,12 @@ public class MarketServiceImpl implements MarketService {
 
     private final StockRepository stockRepository;
     private final StockHistoryRepository stockHistoryRepository;
-    private final ResearchReportRepository researchReportRepository;
 
     public MarketServiceImpl(StockRepository stockRepository,
-                             StockHistoryRepository stockHistoryRepository,
-                             ResearchReportRepository researchReportRepository) {
+                             StockHistoryRepository stockHistoryRepository) {
 
         this.stockRepository = stockRepository;
         this.stockHistoryRepository = stockHistoryRepository;
-        this.researchReportRepository = researchReportRepository;
     }
 
     @Override
@@ -39,18 +34,7 @@ public class MarketServiceImpl implements MarketService {
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Stock not found: " + symbol));
 
-        StockQuoteResponse response = new StockQuoteResponse();
-
-        response.setSymbol(stock.getSymbol());
-        response.setCompanyName(stock.getCompanyName());
-        response.setCurrentPrice(stock.getCurrentPrice());
-        response.setOpenPrice(stock.getOpenPrice());
-        response.setHighPrice(stock.getHighPrice());
-        response.setLowPrice(stock.getLowPrice());
-        response.setVolume(stock.getVolume());
-        response.setLastUpdated(stock.getLastUpdated());
-
-        return response;
+        return mapToResponse(stock);
     }
 
     @Override
@@ -76,26 +60,53 @@ public class MarketServiceImpl implements MarketService {
     }
 
     @Override
-    public List<ResearchReportResponse> getResearchReports() {
+    public StockQuoteResponse createOrUpdateStock(StockRequest request) {
 
-        return researchReportRepository.findAll()
-                .stream()
-                .map(this::mapToResearchResponse)
-                .collect(Collectors.toList());
+        Stock stock = stockRepository.findBySymbol(request.getSymbol().toUpperCase())
+                .orElseGet(() -> {
+                    Stock created = new Stock();
+                    created.setSymbol(request.getSymbol().toUpperCase());
+                    created.setOpenPrice(request.getPrice());
+                    created.setHighPrice(request.getPrice());
+                    created.setLowPrice(request.getPrice());
+                    created.setVolume(0L);
+                    return created;
+                });
+
+        stock.setCompanyName(request.getCompanyName());
+        stock.setCurrentPrice(request.getPrice());
+        stock.setHighPrice(Math.max(stock.getHighPrice(), request.getPrice()));
+        stock.setLowPrice(Math.min(stock.getLowPrice(), request.getPrice()));
+        stock.setLastUpdated(LocalDateTime.now());
+
+        return mapToResponse(stockRepository.save(stock));
     }
 
-    private ResearchReportResponse mapToResearchResponse(ResearchReport report) {
+    @Override
+    public StockQuoteResponse setCircuitHalt(String symbol, boolean halted) {
 
-        ResearchReportResponse response = new ResearchReportResponse();
+        Stock stock = stockRepository.findBySymbol(symbol.toUpperCase())
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Stock not found: " + symbol));
 
-        response.setId(report.getId());
-        response.setCompanyName(report.getCompanyName());
-        response.setSymbol(report.getSymbol());
-        response.setAnalyst(report.getAnalyst());
-        response.setRecommendation(report.getRecommendation());
-        response.setTargetPrice(report.getTargetPrice());
-        response.setPublishedDate(report.getPublishedDate());
-        response.setSummary(report.getSummary());
+        stock.setCircuitHalted(halted);
+
+        return mapToResponse(stockRepository.save(stock));
+    }
+
+    private StockQuoteResponse mapToResponse(Stock stock) {
+
+        StockQuoteResponse response = new StockQuoteResponse();
+
+        response.setSymbol(stock.getSymbol());
+        response.setCompanyName(stock.getCompanyName());
+        response.setCurrentPrice(stock.getCurrentPrice());
+        response.setOpenPrice(stock.getOpenPrice());
+        response.setHighPrice(stock.getHighPrice());
+        response.setLowPrice(stock.getLowPrice());
+        response.setVolume(stock.getVolume());
+        response.setLastUpdated(stock.getLastUpdated());
+        response.setCircuitHalted(stock.isCircuitHalted());
 
         return response;
     }

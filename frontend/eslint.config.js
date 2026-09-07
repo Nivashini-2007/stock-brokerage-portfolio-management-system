@@ -17,5 +17,11 @@ export default defineConfig([
       globals: globals.browser,
       parserOptions: { ecmaFeatures: { jsx: true } },
     },
+    rules: {
+      // Standard "fetch on mount / on dependency change" data-loading effects
+      // (setLoading(true) then an async call) are intentional throughout this
+      // app's pages, not the derived-state anti-pattern this rule targets.
+      'react-hooks/set-state-in-effect': 'off',
+    },
   },
 ])

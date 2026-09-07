@@ -1,5 +1,6 @@
 package com.stockbroker.backend.entity;
 
+import com.stockbroker.backend.enums.OrderSide;
 import com.stockbroker.backend.enums.OrderStatus;
 import com.stockbroker.backend.enums.OrderType;
 import jakarta.persistence.*;
@@ -26,11 +27,28 @@ public class Order {
     @Column(nullable = false)
     private OrderType orderType;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private OrderSide orderSide;
+
     @Column(nullable = false)
     private Integer quantity;
 
-    @Column(nullable = false)
+    /**
+     * Limit price for LIMIT/BRACKET entry legs. Null for MARKET orders
+     * (executed at the prevailing Stock.currentPrice).
+     */
     private Double price;
+
+    /**
+     * Trigger price for STOP_LOSS / BRACKET / COVER orders.
+     */
+    private Double triggerPrice;
+
+    /**
+     * Target (profit-booking) price for BRACKET orders.
+     */
+    private Double targetPrice;
 
     @Column(nullable = false)
     private Double totalAmount;
@@ -40,7 +58,17 @@ public class Order {
     private OrderStatus status;
 
     @Column(nullable = false)
-    private LocalDateTime orderDate;
+    private LocalDateTime placedAt;
+
+    private LocalDateTime executedAt;
+
+    /**
+     * For an auto-generated bracket/cover exit order, the entry order it
+     * belongs to. Null for standalone/entry orders.
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_order_id")
+    private Order parentOrder;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "client_id", nullable = false)
@@ -48,10 +76,11 @@ public class Order {
 
     @PrePersist
     public void prePersist() {
-    this.orderDate = LocalDateTime.now();
 
-    if (this.status == null) {
-        this.status = OrderStatus.PENDING;
+        this.placedAt = LocalDateTime.now();
+
+        if (this.status == null) {
+            this.status = OrderStatus.PENDING;
+        }
     }
-}
 }
